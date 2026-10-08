@@ -1,7 +1,7 @@
 name: Site (GitHub Pages)
 
 # Publie le site vitrine (web/) sur https://albanfredon23.github.io/aiobot/
-# Le site construit est poussé sur la branche gh-pages, servie par GitHub Pages.
+# configure-pages active GitHub Pages (source « GitHub Actions ») s'il ne l'est pas encore.
 
 on:
   push:
@@ -10,20 +10,25 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -32,13 +37,16 @@ jobs:
       - run: npm ci
       # Le site est servi sous /aiobot/ et non à la racine du domaine.
       - run: npx vite build --base=/${{ github.event.repository.name }}/
-      - name: Publication sur gh-pages
-        working-directory: web/dist
-        run: |
-          touch .nojekyll
-          git init -q -b gh-pages
-          git config user.name "Alban"
-          git config user.email "329104919+albanfredon23@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Site publié depuis ${GITHUB_SHA::7}"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
