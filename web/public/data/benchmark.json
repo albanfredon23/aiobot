@@ -1,0 +1,603 @@
+{
+ "version": "0.1.0",
+ "generated_at": "2026-10-08T12:40:14Z",
+ "machine": {
+  "python": "3.13.16",
+  "processor": "x86_64",
+  "cpu_count": 4
+ },
+ "protocol": {
+  "seeds": 5,
+  "scenarios": {
+   "nominal": "Cycle nominal",
+   "operateur": "Opérateur dans la cellule",
+   "charge": "Charge inconnue (+1 kg)",
+   "capteur": "Codeur du coude défaillant",
+   "choc": "Choc extérieur"
+  },
+  "arms": {
+   "aiobot": "AIOBot complet",
+   "budget_fixe": "Sans gate (budget maximal)",
+   "sans_scg": "Sans SCG",
+   "sans_chi2": "Sans filtre χ²"
+  },
+  "notes": [
+   "Simulation : bras 2 axes, pas de commande de 50 ms, bruit capteur gaussien.",
+   "Violations : pas où l'état réel du simulateur viole une contrainte ; celles imposées par un choc au pas même du choc sont comptées à part.",
+   "FLOP : prédictions du world model comptées exactement ; cinématique, contraintes et coût estimés à 120 FLOP par pas imaginé.",
+   "Énergie mécanique : somme de |τ · q̇| · dt des moteurs, mesurée sur le simulateur (pas l'énergie électrique du calcul)."
+  ]
+ },
+ "headline": {
+  "compute_saving_per_mission": 0.492,
+  "compute_saving_per_decision": 0.506,
+  "completion_aiobot": 0.8,
+  "completion_budget_fixe": 0.8,
+  "violation_steps_aiobot": 0,
+  "violation_steps_budget_fixe": 2,
+  "violation_steps_sans_scg": 788,
+  "violation_steps_sans_chi2": 79
+ },
+ "results": {
+  "aiobot": {
+   "nominal": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.58,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.2,
+    "holds_per_mission": 4.8,
+    "gflop_per_mission": 8.46,
+    "mflop_per_decision": 64.22,
+    "latency_ms": 13.18,
+    "mechanical_energy_j": 68.8,
+    "min_operator_clearance_m": null
+   },
+   "operateur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 13.03,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.2,
+    "holds_per_mission": 15.4,
+    "gflop_per_mission": 20.62,
+    "mflop_per_decision": 79.24,
+    "latency_ms": 14.58,
+    "mechanical_energy_j": 68.0,
+    "min_operator_clearance_m": 0.1107
+   },
+   "charge": {
+    "missions": 5,
+    "completion_rate": 0.0,
+    "cycle_time_s": null,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 1.0,
+    "freezes_per_mission": 3.0,
+    "holds_per_mission": 13.0,
+    "gflop_per_mission": 1.36,
+    "mflop_per_decision": 37.83,
+    "latency_ms": 7.99,
+    "mechanical_energy_j": 11.1,
+    "min_operator_clearance_m": null
+   },
+   "capteur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 7.32,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.0,
+    "holds_per_mission": 10.4,
+    "gflop_per_mission": 9.17,
+    "mflop_per_decision": 62.67,
+    "latency_ms": 12.04,
+    "mechanical_energy_j": 72.3,
+    "min_operator_clearance_m": null
+   },
+   "choc": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 7.02,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 5,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.0,
+    "holds_per_mission": 9.4,
+    "gflop_per_mission": 8.64,
+    "mflop_per_decision": 61.43,
+    "latency_ms": 11.94,
+    "mechanical_energy_j": 67.7,
+    "min_operator_clearance_m": null
+   },
+   "_total": {
+    "missions": 25,
+    "completion_rate": 0.8,
+    "cycle_time_s": 8.49,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 5,
+    "intervention_rate": 0.2,
+    "freezes_per_mission": 1.08,
+    "holds_per_mission": 10.6,
+    "gflop_per_mission": 9.65,
+    "mflop_per_decision": 61.08,
+    "latency_ms": 11.95,
+    "mechanical_energy_j": 57.6,
+    "min_operator_clearance_m": 0.1107
+   }
+  },
+  "budget_fixe": {
+   "nominal": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 7.15,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 4.0,
+    "gflop_per_mission": 19.47,
+    "mflop_per_decision": 136.16,
+    "latency_ms": 23.46,
+    "mechanical_energy_j": 81.1,
+    "min_operator_clearance_m": null
+   },
+   "operateur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 12.58,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 14.8,
+    "gflop_per_mission": 34.19,
+    "mflop_per_decision": 135.87,
+    "latency_ms": 24.27,
+    "mechanical_energy_j": 74.2,
+    "min_operator_clearance_m": 0.1125
+   },
+   "charge": {
+    "missions": 5,
+    "completion_rate": 0.0,
+    "cycle_time_s": null,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 1.0,
+    "freezes_per_mission": 3.0,
+    "holds_per_mission": 13.0,
+    "gflop_per_mission": 3.16,
+    "mflop_per_decision": 87.28,
+    "latency_ms": 16.89,
+    "mechanical_energy_j": 11.9,
+    "min_operator_clearance_m": null
+   },
+   "capteur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.88,
+    "violation_steps": 2,
+    "violation_steps_by_constraint": {
+     "joint_limit": 2,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 2,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.2,
+    "holds_per_mission": 10.4,
+    "gflop_per_mission": 17.77,
+    "mflop_per_decision": 129.24,
+    "latency_ms": 23.45,
+    "mechanical_energy_j": 75.3,
+    "min_operator_clearance_m": null
+   },
+   "choc": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 7.81,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 6,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.2,
+    "holds_per_mission": 11.6,
+    "gflop_per_mission": 20.29,
+    "mflop_per_decision": 130.01,
+    "latency_ms": 22.64,
+    "mechanical_energy_j": 81.0,
+    "min_operator_clearance_m": null
+   },
+   "_total": {
+    "missions": 25,
+    "completion_rate": 0.8,
+    "cycle_time_s": 8.61,
+    "violation_steps": 2,
+    "violation_steps_by_constraint": {
+     "joint_limit": 2,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 2,
+    "event_violation_steps": 6,
+    "intervention_rate": 0.2,
+    "freezes_per_mission": 1.08,
+    "holds_per_mission": 10.8,
+    "gflop_per_mission": 18.98,
+    "mflop_per_decision": 123.71,
+    "latency_ms": 22.14,
+    "mechanical_energy_j": 64.7,
+    "min_operator_clearance_m": 0.1125
+   }
+  },
+  "sans_scg": {
+   "nominal": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.79,
+    "violation_steps": 197,
+    "violation_steps_by_constraint": {
+     "joint_limit": 52,
+     "workspace_floor": 0,
+     "obstacle_sphere": 20,
+     "operator_sphere": 0,
+     "speed_limit": 125
+    },
+    "missions_with_violation": 5,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.4,
+    "holds_per_mission": 16.4,
+    "gflop_per_mission": 8.34,
+    "mflop_per_decision": 62.31,
+    "latency_ms": 11.84,
+    "mechanical_energy_j": 90.2,
+    "min_operator_clearance_m": null
+   },
+   "operateur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.79,
+    "violation_steps": 249,
+    "violation_steps_by_constraint": {
+     "joint_limit": 52,
+     "workspace_floor": 0,
+     "obstacle_sphere": 20,
+     "operator_sphere": 0,
+     "speed_limit": 177
+    },
+    "missions_with_violation": 5,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 1.4,
+    "holds_per_mission": 16.4,
+    "gflop_per_mission": 8.34,
+    "mflop_per_decision": 62.31,
+    "latency_ms": 12.27,
+    "mechanical_energy_j": 90.2,
+    "min_operator_clearance_m": 0.1857
+   },
+   "charge": {
+    "missions": 5,
+    "completion_rate": 0.0,
+    "cycle_time_s": null,
+    "violation_steps": 19,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 19
+    },
+    "missions_with_violation": 5,
+    "event_violation_steps": 0,
+    "intervention_rate": 1.0,
+    "freezes_per_mission": 3.0,
+    "holds_per_mission": 13.0,
+    "gflop_per_mission": 1.36,
+    "mflop_per_decision": 37.88,
+    "latency_ms": 7.84,
+    "mechanical_energy_j": 15.0,
+    "min_operator_clearance_m": null
+   },
+   "capteur": {
+    "missions": 5,
+    "completion_rate": 0.2,
+    "cycle_time_s": 7.1,
+    "violation_steps": 143,
+    "violation_steps_by_constraint": {
+     "joint_limit": 51,
+     "workspace_floor": 0,
+     "obstacle_sphere": 8,
+     "operator_sphere": 0,
+     "speed_limit": 84
+    },
+    "missions_with_violation": 5,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.8,
+    "freezes_per_mission": 2.8,
+    "holds_per_mission": 19.4,
+    "gflop_per_mission": 5.16,
+    "mflop_per_decision": 57.93,
+    "latency_ms": 11.05,
+    "mechanical_energy_j": 61.3,
+    "min_operator_clearance_m": null
+   },
+   "choc": {
+    "missions": 5,
+    "completion_rate": 0.4,
+    "cycle_time_s": 6.3,
+    "violation_steps": 180,
+    "violation_steps_by_constraint": {
+     "joint_limit": 46,
+     "workspace_floor": 0,
+     "obstacle_sphere": 25,
+     "operator_sphere": 0,
+     "speed_limit": 109
+    },
+    "missions_with_violation": 5,
+    "event_violation_steps": 2,
+    "intervention_rate": 0.6,
+    "freezes_per_mission": 2.4,
+    "holds_per_mission": 19.0,
+    "gflop_per_mission": 5.85,
+    "mflop_per_decision": 60.03,
+    "latency_ms": 12.01,
+    "mechanical_energy_j": 70.4,
+    "min_operator_clearance_m": null
+   },
+   "_total": {
+    "missions": 25,
+    "completion_rate": 0.52,
+    "cycle_time_s": 6.74,
+    "violation_steps": 788,
+    "violation_steps_by_constraint": {
+     "joint_limit": 201,
+     "workspace_floor": 0,
+     "obstacle_sphere": 73,
+     "operator_sphere": 0,
+     "speed_limit": 514
+    },
+    "missions_with_violation": 25,
+    "event_violation_steps": 2,
+    "intervention_rate": 0.48,
+    "freezes_per_mission": 2.2,
+    "holds_per_mission": 16.8,
+    "gflop_per_mission": 5.81,
+    "mflop_per_decision": 56.09,
+    "latency_ms": 11.0,
+    "mechanical_energy_j": 65.4,
+    "min_operator_clearance_m": 0.1857
+   }
+  },
+  "sans_chi2": {
+   "nominal": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.94,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 4.2,
+    "gflop_per_mission": 6.51,
+    "mflop_per_decision": 46.96,
+    "latency_ms": 10.7,
+    "mechanical_energy_j": 70.8,
+    "min_operator_clearance_m": null
+   },
+   "operateur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 12.55,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 12.4,
+    "gflop_per_mission": 18.5,
+    "mflop_per_decision": 73.72,
+    "latency_ms": 16.98,
+    "mechanical_energy_j": 65.0,
+    "min_operator_clearance_m": 0.0724
+   },
+   "charge": {
+    "missions": 5,
+    "completion_rate": 0.0,
+    "cycle_time_s": null,
+    "violation_steps": 79,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 79,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 2,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 13.4,
+    "gflop_per_mission": 17.74,
+    "mflop_per_decision": 36.95,
+    "latency_ms": 9.9,
+    "mechanical_energy_j": 171.0,
+    "min_operator_clearance_m": null
+   },
+   "capteur": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.95,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 0,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 3.6,
+    "gflop_per_mission": 6.5,
+    "mflop_per_decision": 46.73,
+    "latency_ms": 12.32,
+    "mechanical_energy_j": 71.9,
+    "min_operator_clearance_m": null
+   },
+   "choc": {
+    "missions": 5,
+    "completion_rate": 1.0,
+    "cycle_time_s": 6.89,
+    "violation_steps": 0,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 0,
+    "event_violation_steps": 5,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 5.0,
+    "gflop_per_mission": 6.37,
+    "mflop_per_decision": 46.47,
+    "latency_ms": 12.64,
+    "mechanical_energy_j": 68.6,
+    "min_operator_clearance_m": null
+   },
+   "_total": {
+    "missions": 25,
+    "completion_rate": 0.8,
+    "cycle_time_s": 8.33,
+    "violation_steps": 79,
+    "violation_steps_by_constraint": {
+     "joint_limit": 0,
+     "workspace_floor": 79,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "missions_with_violation": 2,
+    "event_violation_steps": 5,
+    "intervention_rate": 0.0,
+    "freezes_per_mission": 0.0,
+    "holds_per_mission": 7.7,
+    "gflop_per_mission": 11.12,
+    "mflop_per_decision": 50.17,
+    "latency_ms": 12.51,
+    "mechanical_energy_j": 89.4,
+    "min_operator_clearance_m": 0.0724
+   }
+  }
+ }
+}

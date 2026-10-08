@@ -1,0 +1,365 @@
+{
+ "version": "0.1.0",
+ "seed": 0,
+ "dt": 0.05,
+ "arm": {
+  "l1": 0.55,
+  "l2": 0.45,
+  "q_low": [
+   -0.35,
+   -2.6
+  ],
+  "q_high": [
+   3.491592653589793,
+   2.6
+  ]
+ },
+ "envelope": {
+  "floor_y": -0.12,
+  "collaborative_margin": 0.35,
+  "collaborative_speed": 0.25,
+  "max_tool_speed": 1.5
+ },
+ "fixture": {
+  "center": [
+   0.05,
+   0.42
+  ],
+  "radius": 0.1,
+  "label": "montage"
+ },
+ "operator": {
+  "center": [
+   0.98,
+   0.42
+  ],
+  "radius": 0.22,
+  "label": "opérateur"
+ },
+ "stations": {
+  "prise": [
+   0.72,
+   0.02
+  ],
+  "passage": [
+   0.02,
+   0.8
+  ],
+  "depose": [
+   -0.62,
+   0.1
+  ],
+  "parking": [
+   0.3,
+   0.72
+  ]
+ },
+ "mission": [
+  "prise",
+  "passage",
+  "depose",
+  "parking"
+ ],
+ "rejection_keys": [
+  "joint_limit",
+  "workspace_floor",
+  "obstacle_sphere",
+  "operator_sphere",
+  "speed_limit"
+ ],
+ "scenarios": {
+  "nominal": "Cycle nominal",
+  "operateur": "Opérateur dans la cellule",
+  "charge": "Charge inconnue (+1 kg)",
+  "capteur": "Codeur du coude défaillant",
+  "choc": "Choc extérieur"
+ },
+ "arms": {
+  "aiobot": "AIOBot complet",
+  "budget_fixe": "Sans gate (budget maximal)",
+  "sans_scg": "Sans SCG",
+  "sans_chi2": "Sans filtre χ²"
+ },
+ "missions": [
+  {
+   "id": "nominal-aiobot",
+   "scenario": "nominal",
+   "arm": "aiobot",
+   "summary": {
+    "scenario": "nominal",
+    "arm": "aiobot",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 141,
+    "duration_s": 7.05,
+    "holds": 4,
+    "hold_reasons": {
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 3,
+     "ROBUSTESSE_INSUFFISANTE": 1
+    },
+    "freezes": 0,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 79.096,
+    "flops_total": 9597645480,
+    "flops_per_decision": 68068407.7,
+    "model_steps_total": 450596,
+    "latency_ms_mean": 13.903
+   }
+  },
+  {
+   "id": "operateur-aiobot",
+   "scenario": "operateur",
+   "arm": "aiobot",
+   "summary": {
+    "scenario": "operateur",
+    "arm": "aiobot",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 272,
+    "duration_s": 13.6,
+    "holds": 15,
+    "hold_reasons": {
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 13,
+     "ROBUSTESSE_INSUFFISANTE": 2
+    },
+    "freezes": 0,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": 0.117,
+    "mechanical_energy_j": 60.937,
+    "flops_total": 20760144180,
+    "flops_per_decision": 76324059.5,
+    "model_steps_total": 974659,
+    "latency_ms_mean": 14.825
+   }
+  },
+  {
+   "id": "charge-aiobot",
+   "scenario": "charge",
+   "arm": "aiobot",
+   "summary": {
+    "scenario": "charge",
+    "arm": "aiobot",
+    "completed": false,
+    "stations_reached": 1,
+    "steps": 36,
+    "duration_s": 1.8,
+    "holds": 13,
+    "hold_reasons": {
+     "CHI2_FREEZE": 12,
+     "INTERVENTION_REQUISE": 1
+    },
+    "freezes": 3,
+    "intervention": true,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 10.149,
+    "flops_total": 1334500620,
+    "flops_per_decision": 37069461.7,
+    "model_steps_total": 62653,
+    "latency_ms_mean": 7.389
+   }
+  },
+  {
+   "id": "capteur-aiobot",
+   "scenario": "capteur",
+   "arm": "aiobot",
+   "summary": {
+    "scenario": "capteur",
+    "arm": "aiobot",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 151,
+    "duration_s": 7.55,
+    "holds": 11,
+    "hold_reasons": {
+     "CHI2_FREEZE": 6,
+     "ROBUSTESSE_INSUFFISANTE": 1,
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 4
+    },
+    "freezes": 1,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 64.794,
+    "flops_total": 9306516000,
+    "flops_per_decision": 61632556.3,
+    "model_steps_total": 436928,
+    "latency_ms_mean": 11.962
+   }
+  },
+  {
+   "id": "choc-aiobot",
+   "scenario": "choc",
+   "arm": "aiobot",
+   "summary": {
+    "scenario": "choc",
+    "arm": "aiobot",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 152,
+    "duration_s": 7.6,
+    "holds": 12,
+    "hold_reasons": {
+     "CHI2_FREEZE": 6,
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 6
+    },
+    "freezes": 1,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 87.295,
+    "flops_total": 9800377800,
+    "flops_per_decision": 64476169.7,
+    "model_steps_total": 460114,
+    "latency_ms_mean": 12.63
+   }
+  },
+  {
+   "id": "nominal-budget_fixe",
+   "scenario": "nominal",
+   "arm": "budget_fixe",
+   "summary": {
+    "scenario": "nominal",
+    "arm": "budget_fixe",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 137,
+    "duration_s": 6.85,
+    "holds": 3,
+    "hold_reasons": {
+     "ROBUSTESSE_INSUFFISANTE": 2,
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 1
+    },
+    "freezes": 0,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 84.166,
+    "flops_total": 18668081160,
+    "flops_per_decision": 136263366.1,
+    "model_steps_total": 876438,
+    "latency_ms_mean": 25.318
+   }
+  },
+  {
+   "id": "operateur-sans_scg",
+   "scenario": "operateur",
+   "arm": "sans_scg",
+   "summary": {
+    "scenario": "operateur",
+    "arm": "sans_scg",
+    "completed": true,
+    "stations_reached": 4,
+    "steps": 125,
+    "duration_s": 6.25,
+    "holds": 20,
+    "hold_reasons": {
+     "MODELE_INCERTAIN": 8,
+     "CHI2_FREEZE": 12
+    },
+    "freezes": 2,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 7,
+     "workspace_floor": 0,
+     "obstacle_sphere": 6,
+     "operator_sphere": 0,
+     "speed_limit": 28
+    },
+    "violations": 41,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": 0.2028,
+    "mechanical_energy_j": 97.616,
+    "flops_total": 7477135500,
+    "flops_per_decision": 59817084.0,
+    "model_steps_total": 351041,
+    "latency_ms_mean": 12.156
+   }
+  },
+  {
+   "id": "charge-sans_chi2",
+   "scenario": "charge",
+   "arm": "sans_chi2",
+   "summary": {
+    "scenario": "charge",
+    "arm": "sans_chi2",
+    "completed": false,
+    "stations_reached": 1,
+    "steps": 480,
+    "duration_s": 24.0,
+    "holds": 4,
+    "hold_reasons": {
+     "AUCUNE_TRAJECTOIRE_ADMISSIBLE": 4
+    },
+    "freezes": 0,
+    "intervention": false,
+    "violation_steps": {
+     "joint_limit": 0,
+     "workspace_floor": 0,
+     "obstacle_sphere": 0,
+     "operator_sphere": 0,
+     "speed_limit": 0
+    },
+    "violations": 0,
+    "event_violation_steps": {},
+    "min_operator_clearance_m": null,
+    "mechanical_energy_j": 181.331,
+    "flops_total": 17037549540,
+    "flops_per_decision": 35494894.9,
+    "model_steps_total": 799893,
+    "latency_ms_mean": 9.762
+   }
+  }
+ ]
+}
