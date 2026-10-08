@@ -1,0 +1,47 @@
+name: AIOBot
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [engine]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests sur le bytecode seul, dans le conteneur
+        run: docker build --target test engine
+      - name: Build et démarrage
+        run: |
+          docker compose up -d --build --wait
+          curl -fsS http://127.0.0.1:8000/api/health
+          curl -fsS -X POST http://127.0.0.1:8000/api/mission -H 'Content-Type: application/json' -d '{"frames": false}' | grep -q '"verified":true'
+          curl -fsS http://127.0.0.1:8000/api/model > /dev/null
+      - name: Cloisonnement
+        run: |
+          # Aucune source Python dans l'image, seulement du bytecode
+          test "$(docker compose exec -T aiobot-engine sh -c 'find /app -name "*.py" | wc -l')" = "0"
+          # API publiée uniquement sur l'interface locale
+          docker compose port aiobot-engine 8000 | grep -q '^127.0.0.1:'
+          # Système de fichiers en lecture seule
+          if docker compose exec -T aiobot-engine touch /app/essai; then exit 1; fi
+      - name: Arrêt
+        if: always()
+        run: docker compose down -v

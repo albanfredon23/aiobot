@@ -1,0 +1,34 @@
+# AIOBot : moteur seul pour l'instant (le site viendra plus tard comme second service)
+#   docker compose up --build        puis http://127.0.0.1:8000/api/docs
+#
+#   aiobot-engine  world model, pilote et API ; image en bytecode seul, utilisateur
+#                  non root, système de fichiers en lecture seule. L'API n'est publiée
+#                  que sur 127.0.0.1 (jamais sur Internet) ; le futur service web sera
+#                  le seul exposé publiquement, comme pour AIOTrade.
+name: aiobot
+
+services:
+  aiobot-engine:
+    build:
+      context: ./engine
+      target: runtime
+    restart: unless-stopped
+    networks: [internal-net]
+    ports:
+      - "127.0.0.1:${AIOBOT_API_PORT:-8000}:8000"
+    environment:
+      AIOBOT_METRICS_DIR: /data/metrics
+    volumes:
+      - metrics:/data/metrics
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  internal-net: {}
+
+volumes:
+  metrics:
