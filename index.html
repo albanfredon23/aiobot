@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; script-src &#39;self&#39;; style-src &#39;self&#39;; img-src &#39;self&#39; data: blob:; font-src &#39;self&#39;; connect-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;self&#39;; form-action &#39;self&#39;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AIOBot · Le robot qui imagine avant d'agir, grâce à un world model</title>
+    <meta
+      name="description"
+      content="AIOBot pilote une cellule robotisée avec un world model appris : il imagine des centaines de gestes, élimine ceux qui violent une contrainte de sécurité, n'agit que si le plan reste sûr et trace chaque décision. Résultats mesurés en simulation."
+    />
+    <link rel="canonical" href="https://albanfredon23.github.io/aiobot/" />
+    <meta name="theme-color" content="#070b10" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/aiobot/favicon.svg" type="image/svg+xml" />
+
+    <!-- Open Graph / réseaux sociaux -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="AIOBot" />
+    <meta property="og:title" content="AIOBot · Imaginer avant d'agir, n'agir que si c'est sûr" />
+    <meta
+      property="og:description"
+      content="Un pilote industriel fondé sur un world model appris : filtre χ², gate de calcul, faisceau TAP, contraintes SCG, contrôle de robustesse et registre XAI. 0 pas en violation sur 100 missions simulées, calcul divisé par deux."
+    />
+    <meta property="og:url" content="https://albanfredon23.github.io/aiobot/" />
+    <meta property="og:image" content="https://albanfredon23.github.io/aiobot/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Scène 3D d'AIOBot : un bras robotisé orange, son double imaginé par le world model, le plan retenu en turquoise, les trajectoires élaguées en rouge et la sphère de protection d'un opérateur." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!--
+      Mesure d'audience respectueuse de la vie privée (Plausible, Matomo…).
+      Laisser vide pour ne rien charger. Le script n'est injecté qu'après consentement
+      explicite à la catégorie « Mesure d'audience » (voir src/analytics.js).
+      Penser à autoriser son domaine dans la Content-Security-Policy (vite.config.js).
+    -->
+    <meta name="aiobot:analytics-src" content="" />
+    <meta name="aiobot:analytics-domain" content="albanfredon23.github.io" />
+    <!--
+      Contact : adresse qui reçoit les demandes (ouverture de la messagerie du visiteur),
+      ou URL d'une API de même origine qui reçoit la demande en JSON. Voir src/form.js.
+    -->
+    <meta name="aiobot:contact-email" content="" />
+    <meta name="aiobot:contact-endpoint" content="" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://albanfredon23.github.io/aiobot/#organisation",
+            "name": "AIOBot",
+            "url": "https://albanfredon23.github.io/aiobot/",
+            "logo": "https://albanfredon23.github.io/aiobot/favicon.svg",
+            "sameAs": ["https://github.com/albanfredon23/aiobot"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://albanfredon23.github.io/aiobot/#site",
+            "url": "https://albanfredon23.github.io/aiobot/",
+            "name": "AIOBot",
+            "inLanguage": "fr-FR",
+            "publisher": { "@id": "https://albanfredon23.github.io/aiobot/#organisation" }
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "AIOBot",
+            "codeRepository": "https://github.com/albanfredon23/aiobot",
+            "programmingLanguage": "Python",
+            "runtimePlatform": "Python 3.12, NumPy, FastAPI, Docker",
+            "description": "Pilote industriel fondé sur un world model appris : filtre d'intégrité χ², gate de complexité, planification TAP dans le modèle, graphe de contraintes de sécurité SCG, contrôle de robustesse et registre d'audit XAI chaîné SHA-256. Simulation d'un bras 2 axes.",
+            "author": { "@id": "https://albanfredon23.github.io/aiobot/#organisation" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Qu'est-ce qu'un world model ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Un simulateur appris. À partir de l'état d'une machine et d'une action, il prédit l'état suivant. Il permet d'imaginer des centaines de gestes en quelques millisecondes, sans risque, puis de n'exécuter que le meilleur."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "AIOBot commande-t-il un vrai robot ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Non. Tout se passe en simulation, sur un bras à deux axes. Passer à un robot réel demande de réapprendre le world model sur ses journaux et de valider les contraintes de sécurité selon les normes applicables, comme ISO 10218 et ISO/TS 15066."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Que se passe-t-il quand le robot porte une charge inconnue ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Le filtre χ² voit que le monde ne suit plus le world model : AIOBot gèle, réessaie, puis s'arrête et demande une intervention humaine après trois gels, sans aucune violation de contrainte."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Combien de calcul le gate économise-t-il ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sur le benchmark de 100 missions simulées, le gate divise le calcul par deux (49 % de moins par mission, 51 % par décision) sans perdre de mission et avec un temps de cycle équivalent."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+    <script type="module" crossorigin src="/aiobot/assets/index-YL-7nSpU.js"></script>
+    <link rel="modulepreload" crossorigin href="/aiobot/assets/nav-CAqbgyVo.js">
+    <link rel="stylesheet" crossorigin href="/aiobot/assets/nav-DU8_rLiF.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <!-- Couche visuelle 3D : décorative, tout le contenu est en HTML sémantique ci-dessous. -->
+    <div class="graph-layer" aria-hidden="true" data-stage="0">
+      <canvas id="graph-canvas" class="graph-canvas"></canvas>
+      <svg class="graph-fallback" viewBox="0 0 1000 620" role="presentation" focusable="false">
+        <g class="fb-cell">
+          <rect class="fb-table" x="20" y="466" width="960" height="14" rx="3" />
+          <rect class="fb-pedestal" x="282" y="430" width="36" height="36" rx="4" />
+          <circle class="fb-station" cx="516" cy="424" r="11" /><text x="516" y="456">Prise</text>
+          <circle class="fb-station" cx="306" cy="190" r="11" /><text x="306" y="172">Passage</text>
+          <circle class="fb-station" cx="114" cy="400" r="11" /><text x="114" y="384">Dépose</text>
+          <circle class="fb-station" cx="390" cy="214" r="11" /><text x="420" y="196">Parking</text>
+        </g>
+        <g class="fb-node fb-node--agent" data-s="1">
+          <path class="fb-ghost" d="M300 430 L338 268 L500 330" />
+          <text x="520" y="320">World model</text>
+        </g>
+        <g class="fb-node fb-node--out" data-s="4">
+          <path class="fb-plan" d="M438 272 C470 300 500 360 516 424" />
+          <path class="fb-pruned" d="M438 272 C490 280 540 300 580 330 M438 272 C430 240 380 200 340 200" />
+        </g>
+        <g class="fb-node fb-node--shield" data-s="2"><circle cx="438" cy="272" r="20" /><text x="452" y="250">χ²</text></g>
+        <path class="fb-arm" d="M300 430 L303 265 L438 272" />
+        <circle class="fb-joint" cx="300" cy="430" r="9" />
+        <circle class="fb-joint" cx="303" cy="265" r="8" />
+        <g class="fb-node fb-node--gate" data-s="5">
+          <circle cx="315" cy="304" r="30" />
+          <circle class="fb-zone" cx="594" cy="304" r="171" />
+          <circle class="fb-danger" cx="594" cy="304" r="66" />
+          <text x="594" y="308">Opérateur</text>
+          <text x="315" y="352">Montage</text>
+        </g>
+        <g class="fb-node" data-s="3">
+          <rect x="40" y="400" width="34" height="12" rx="2" /><rect x="40" y="384" width="34" height="12" rx="2" />
+          <rect x="40" y="368" width="34" height="12" rx="2" /><rect x="40" y="352" width="34" height="12" rx="2" />
+          <rect x="40" y="336" width="34" height="12" rx="2" /><rect x="40" y="320" width="34" height="12" rx="2" />
+          <text x="57" y="440">Gate</text>
+        </g>
+        <g class="fb-node fb-node--ledger" data-s="6">
+          <rect x="640" y="56" width="26" height="26" rx="4" /><rect x="700" y="56" width="26" height="26" rx="4" />
+          <rect x="760" y="56" width="26" height="26" rx="4" /><rect x="820" y="56" width="26" height="26" rx="4" />
+          <path class="fb-chain" d="M666 69 H700 M726 69 H760 M786 69 H820" />
+          <text x="743" y="112">XAI Ledger</text>
+        </g>
+      </svg>
+      <div class="scene-hud" hidden>
+        <p class="scene-hud-title">Mission rejouée · opérateur dans la cellule</p>
+        <dl>
+          <div><dt>Pas</dt><dd data-hud="step">–</dd></div>
+          <div><dt>Décision</dt><dd data-hud="decision">–</dd></div>
+          <div><dt>χ²</dt><dd data-hud="chi2">–</dd></div>
+          <div><dt>Budget</dt><dd data-hud="budget">–</dd></div>
+          <div><dt>SCG</dt><dd data-hud="scg">–</dd></div>
+        </dl>
+        <p class="scene-hud-reason" data-hud="reason"></p>
+      </div>
+      <div class="graph-tooltip" hidden></div>
+    </div>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="./" aria-label="AIOBot, accueil">
+          <img src="/aiobot/favicon.svg" alt="" width="32" height="32" />
+          <span>AIOBot</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+          <span class="visually-hidden">Ouvrir le menu</span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="Navigation principale">
+          <ul>
+            <li><a href="#principe">World model</a></li>
+            <li><a href="#fonctionnement">Fonctionnement</a></li>
+            <li><a href="#demo">Démo</a></li>
+            <li><a href="#resultats">Résultats</a></li>
+            <li><a href="#cas-usage">Cas d'usage</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+          <a class="btn btn-primary btn-small" href="#contact">Demander une démo</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenu">
+      <!-- 1. Hero -->
+      <section class="hero stage-section" id="accueil" data-stage="0" aria-labelledby="hero-title">
+        <div class="container">
+          <div class="hero-copy">
+            <p class="eyebrow">World model · Robotique industrielle</p>
+            <h1 id="hero-title">Le robot qui <span class="accent">imagine avant d'agir</span>, et n'agit que si c'est sûr.</h1>
+            <p class="lead">
+              AIOBot pilote une cellule robotisée avec un world model appris. À chaque pas de 50&nbsp;ms, il imagine
+              des centaines de gestes, élimine ceux qui toucheraient une personne, un montage ou une limite de la
+              machine, vérifie que le plan retenu reste sûr malgré l'incertitude, puis exécute ou s'arrête. Chaque
+              décision est scellée dans un registre d'audit.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#contact">Demander une démo</a>
+              <a class="btn btn-ghost" href="#demo">Rejouer une mission</a>
+            </div>
+            <ul class="hero-proof" aria-label="Chiffres clés mesurés en simulation">
+              <li><strong>0</strong><span>pas en violation de sécurité sur 100 missions simulées</span></li>
+              <li><strong>−49&nbsp;%</strong><span>de calcul grâce au gate, sans mission perdue</span></li>
+              <li><strong>11&nbsp;cm</strong><span>de marge minimale avec la sphère de protection de l'opérateur</span></li>
+            </ul>
+            <p class="fine-print">Mesures en simulation (bras 2 axes) ; protocole et limites dans les <a href="#resultats">résultats</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Principe : le world model -->
+      <section class="section stage-section" id="principe" data-stage="0" aria-labelledby="principe-title">
+        <div class="container">
+          <div class="card card-narrow reveal">
+            <p class="eyebrow">Le principe</p>
+            <h2 id="principe-title">Un world model, c'est un simulateur appris</h2>
+            <p>
+              On lui donne l'état d'une machine, ses angles et ses vitesses, et une action, les couples des moteurs.
+              Il prédit l'état suivant. On l'entraîne sur des transitions enregistrées, comme les journaux d'un
+              robot ; il n'a pas besoin des équations de la mécanique.
+            </p>
+            <p>
+              Une fois appris, il permet d'<strong>imaginer avant d'agir</strong> : essayer des centaines de gestes en
+              quelques millisecondes, sans risque pour la machine ni pour les personnes, puis n'exécuter que le
+              meilleur. AIOBot ajoute ce qui manque pour une usine : savoir quand le modèle se trompe, ne jamais
+              retenir un geste interdit, et prouver après coup pourquoi il a agi.
+            </p>
+            <p class="principle">« La productivité est une conséquence. La trajectoire admissible sous contraintes physiques et de sécurité est l'objectif. »</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Fonctionnement : étapes pilotant la scène 3D -->
+      <section class="section steps-section" id="fonctionnement" aria-labelledby="fonctionnement-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Fonctionnement</p>
+            <h2 id="fonctionnement-title">Six étapes, toutes les 50 millisecondes</h2>
+          </header>
+          <ol class="steps">
+            <li class="step card stage-section" data-stage="1" id="etape-world-model">
+              <span class="step-index" aria-hidden="true">01</span>
+              <h3>Le world model imagine</h3>
+              <p>
+                Un ensemble de trois réseaux de neurones (2 couches de 96 neurones, 10&nbsp;564 paramètres chacun)
+                prédit la variation de l'état du bras pour une action donnée. Il a appris sur 80&nbsp;000 transitions
+                d'exploration et atteint un R² de validation de 0,997 à 0,9998. Le bras turquoise de la scène est la
+                posture qu'il imagine au bout du plan.
+              </p>
+            </li>
+            <li class="step card stage-section" data-stage="2" id="etape-chi2">
+              <span class="step-index" aria-hidden="true">02</span>
+              <h3>Le filtre χ² vérifie que le monde suit le modèle</h3>
+              <p>
+                À chaque mesure, l'écart entre l'état réel et l'état prédit est pondéré par sa covariance :
+                <em>d² = rᵀ Σ⁻¹ r</em>. Au-delà de 14,9, le pilote se méfie ; au-delà de 44,5, il gèle et applique un
+                arrêt sûr. Trois gels dans une mission, et il demande une intervention humaine. C'est ainsi qu'une
+                charge inconnue ou un codeur défaillant est détecté.
+              </p>
+            </li>
+            <li class="step card stage-section" data-stage="3" id="etape-gate">
+              <span class="step-index" aria-hidden="true">03</span>
+              <h3>Le gate décide de l'effort</h3>
+              <p>
+                Avant de planifier, le gate estime la difficulté de l'instant : proximité d'un obstacle ou de
+                l'opérateur, distance au but, confiance du modèle. Il fixe le budget, de 64 à 256 trajectoires sur
+                10 à 12 pas. Le calcul qu'il ne demande pas n'est jamais fait : c'est ce qui divise le coût par deux.
+              </p>
+            </li>
+            <li class="step card stage-section" data-stage="4" id="etape-tap">
+              <span class="step-index" aria-hidden="true">04</span>
+              <h3>TAP déroule les trajectoires</h3>
+              <p>
+                Le planificateur TAP (<em>Trajectory Admissible Planning</em>) tire des suites d'actions, les déroule
+                dans le world model et les note : distance au poste visé, effort, marge aux contraintes. Deux tours
+                d'affinage (MPPI puis entropie croisée) concentrent la recherche sur les meilleures. Une correction de
+                biais en ligne compense l'écart résiduel du modèle.
+              </p>
+            </li>
+            <li class="step card stage-section" data-stage="5" id="etape-scg">
+              <span class="step-index" aria-hidden="true">05</span>
+              <h3>Le SCG élague, la robustesse tranche</h3>
+              <p>
+                Le graphe de contraintes SCG écarte toute trajectoire qui sort des limites articulaires, touche le plan
+                de travail, traverse un montage ou la sphère de l'opérateur, ou dépasse 0,25&nbsp;m/s dans sa zone
+                collaborative. Le meilleur plan restant est rejoué par les trois réseaux, avec bruit : il faut 75&nbsp;%
+                de déroulés admissibles et moins de 4&nbsp;cm de désaccord, sinon plan suivant, sinon arrêt sûr.
+              </p>
+            </li>
+            <li class="step card stage-section" data-stage="6" id="etape-decision">
+              <span class="step-index" aria-hidden="true">06</span>
+              <h3>Exécuter ou s'arrêter, et le prouver</h3>
+              <p>
+                Seule la première action du plan est exécutée ; tout recommence au pas suivant. Sinon, c'est un arrêt
+                sûr de catégorie 1. Chaque décision, EXECUTE ou HOLD, est écrite dans le registre XAI : état, budget,
+                rejets par contrainte, robustesse, raison. Les enregistrements sont chaînés par SHA-256 : une ligne
+                modifiée casse la chaîne.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- 4. Démo -->
+      <section class="section section-solid" id="demo" aria-labelledby="demo-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Démo</p>
+            <h2 id="demo-title">Rejouez une mission, décision par décision</h2>
+            <p class="section-lead">
+              Chaque mission a été jouée par le moteur puis exportée telle quelle (<code>python -m aiobot export-demo</code>,
+              graine 0) : angles du bras, plan retenu, trajectoires élaguées, filtre χ², budget et rejets du SCG. Le
+              robot doit enchaîner prise, passage, dépose et parking. Les « ablations » montrent ce qui arrive quand
+              on retire une brique.
+            </p>
+          </header>
+          <form class="demo-controls card demo-controls--aiobot" id="demo-form">
+            <div class="field">
+              <label for="demo-mission">Mission</label>
+              <select id="demo-mission" name="mission" disabled>
+                <option>Chargement…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="demo-speed">Vitesse</label>
+              <select id="demo-speed" name="speed">
+                <option value="0.5">× 0,5</option>
+                <option value="1" selected>× 1 (temps réel)</option>
+                <option value="2">× 2</option>
+                <option value="4">× 4</option>
+              </select>
+            </div>
+            <div class="field field-button">
+              <button class="btn btn-primary" id="demo-play" type="button" aria-pressed="false" disabled>Lecture</button>
+            </div>
+            <div class="field field-wide">
+              <label for="demo-time">Décision : <output id="demo-time-out" for="demo-time">–</output></label>
+              <input id="demo-time" name="time" type="range" min="0" max="0" step="1" value="0" disabled />
+            </div>
+            <div class="field field-wide demo-live" id="demo-live" hidden>
+              <label for="demo-seed">Moteur en direct : graine de la mission</label>
+              <div class="inline-row">
+                <input id="demo-seed" name="seed" type="number" min="0" max="100000" step="1" value="1" inputmode="numeric" />
+                <button class="btn btn-ghost" id="demo-live-run" type="button">Jouer avec le moteur</button>
+              </div>
+            </div>
+          </form>
+          <div class="demo-output demo-output--aiobot">
+            <figure class="card demo-stage">
+              <canvas id="demo-canvas" class="demo-canvas" role="img" aria-label="Vue de profil de la cellule pendant la mission."></canvas>
+              <figcaption class="demo-legend">
+                <span class="legend-item legend-arm">Bras</span>
+                <span class="legend-item legend-plan">Plan retenu</span>
+                <span class="legend-item legend-pruned">Élaguées par le SCG</span>
+                <span class="legend-item legend-zone">Zone collaborative</span>
+              </figcaption>
+            </figure>
+            <div class="card demo-kpis">
+              <h3>Décision en cours</h3>
+              <dl class="kpis kpis-2">
+                <div><dt>Décision</dt><dd data-kpi="decision">–</dd></div>
+                <div><dt>Filtre χ² (d²)</dt><dd data-kpi="chi2">–</dd></div>
+                <div class="kpi-wide"><dt>Raison</dt><dd data-kpi="reason">–</dd></div>
+                <div class="kpi-wide"><dt>Budget du gate</dt><dd data-kpi="budget">–</dd></div>
+                <div><dt>Admissibles</dt><dd data-kpi="admissible">–</dd></div>
+                <div><dt>Robustesse</dt><dd data-kpi="robustness">–</dd></div>
+                <div class="kpi-wide"><dt>Calcul de la décision</dt><dd data-kpi="flops">–</dd></div>
+              </dl>
+              <h4 class="demo-subtitle">Trajectoires rejetées, par contrainte</h4>
+              <ul id="demo-rejections" class="bars"></ul>
+            </div>
+          </div>
+          <div class="card demo-summary">
+            <h3>Bilan de la mission</h3>
+            <dl class="kpis kpis-7">
+              <div><dt>Terminée</dt><dd data-kpi="completed">–</dd></div>
+              <div><dt>Décisions</dt><dd data-kpi="steps">–</dd></div>
+              <div><dt>Pas en violation</dt><dd data-kpi="violations">–</dd></div>
+              <div><dt>Arrêts sûrs</dt><dd data-kpi="holds">–</dd></div>
+              <div><dt>Calcul total</dt><dd data-kpi="compute">–</dd></div>
+              <div><dt>Énergie mécanique</dt><dd data-kpi="energy">–</dd></div>
+              <div><dt>Marge à l'opérateur</dt><dd data-kpi="clearance">–</dd></div>
+            </dl>
+          </div>
+          <details class="card ledger-live">
+            <summary>Registre XAI de la mission (extrait, JSON)</summary>
+            <pre class="code" tabindex="0"><code id="demo-ledger">Chargement…</code></pre>
+          </details>
+          <p id="demo-status" class="demo-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- 5. Résultats -->
+      <section class="section section-solid" id="resultats" aria-labelledby="resultats-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Mesures</p>
+            <h2 id="resultats-title">100 missions, quatre pilotes, une seule différence à chaque fois</h2>
+            <p class="section-lead">
+              Benchmark du dépôt (<code>python -m aiobot benchmark</code>, 8 octobre 2026) : 5 scénarios × 5 graines
+              pour chaque pilote. Les violations sont comptées sur l'état réel du simulateur, pas sur les prédictions.
+            </p>
+          </header>
+          <div class="card reveal">
+            <div class="table-scroll">
+              <table class="data-table">
+                <caption class="visually-hidden">Résultats du benchmark : AIOBot complet et trois ablations</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Pilote</th>
+                    <th scope="col">Missions réussies</th>
+                    <th scope="col">Pas en violation</th>
+                    <th scope="col">Calcul par mission</th>
+                    <th scope="col">Calcul par décision</th>
+                    <th scope="col">Latence</th>
+                    <th scope="col">Énergie mécanique</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="row-highlight">
+                    <th scope="row">AIOBot complet</th>
+                    <td>80&nbsp;%</td><td><span class="status status-ok">0</span></td><td>9,7&nbsp;GFLOP</td><td>61&nbsp;MFLOP</td><td>12&nbsp;ms</td><td>57,6&nbsp;J</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Sans gate (budget maximal)</th>
+                    <td>80&nbsp;%</td><td>2</td><td>19,0&nbsp;GFLOP</td><td>124&nbsp;MFLOP</td><td>22&nbsp;ms</td><td>64,7&nbsp;J</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Sans SCG</th>
+                    <td>52&nbsp;%</td><td><span class="status status-ko">788</span></td><td>5,8&nbsp;GFLOP</td><td>56&nbsp;MFLOP</td><td>11&nbsp;ms</td><td>65,4&nbsp;J</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Sans filtre χ²</th>
+                    <td>80&nbsp;%</td><td><span class="status status-ko">79</span></td><td>11,1&nbsp;GFLOP</td><td>50&nbsp;MFLOP</td><td>13&nbsp;ms</td><td>89,4&nbsp;J</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="fine-print">
+              Les 20&nbsp;% de missions non terminées par AIOBot sont celles du scénario « charge inconnue » : le robot
+              s'y arrête volontairement et demande une intervention, ce qui est le comportement attendu. Latence
+              mesurée sur un processeur à 4 cœurs, sans GPU.
+            </p>
+          </div>
+          <ul class="grid grid-4 findings">
+            <li class="card reveal">
+              <h3>Le gate divise le calcul par deux</h3>
+              <p>49&nbsp;% de calcul en moins par mission, 51&nbsp;% par décision, sans mission perdue, avec un temps de cycle équivalent (8,5&nbsp;s contre 8,6&nbsp;s).</p>
+            </li>
+            <li class="card reveal">
+              <h3>Le SCG supprime les violations</h3>
+              <p>Sans lui : 788 pas en violation, surtout de vitesse en zone collaborative, de limites articulaires et de collision avec le montage.</p>
+            </li>
+            <li class="card reveal">
+              <h3>Le χ² détecte l'inconnu</h3>
+              <p>Avec 1&nbsp;kg de plus que tout ce que le modèle a vu, AIOBot gèle trois fois puis s'arrête. Sans filtre, le bras touche le plan de travail pendant 79 pas et dépense 171&nbsp;J par mission.</p>
+            </li>
+            <li class="card reveal">
+              <h3>L'opérateur garde sa marge</h3>
+              <p>11&nbsp;cm au plus près entre l'outil et la sphère de protection de l'opérateur, contre 7&nbsp;cm sans filtre χ².</p>
+            </li>
+          </ul>
+          <div class="card card-narrow honest reveal">
+            <h3>Ce que ces chiffres ne disent pas</h3>
+            <ul>
+              <li>Tout est simulé : un bras à deux axes, un pas de 50&nbsp;ms, un bruit capteur gaussien. Sur un vrai robot, il faut réapprendre le world model sur ses journaux et valider les contraintes selon ses normes de sécurité (ISO 10218, ISO/TS 15066).</li>
+              <li>AIOBot n'est pas un automate de sécurité certifié : il se place au-dessus des protections de la machine, pas à leur place.</li>
+              <li>Le filtre χ² gèle à tort environ une mission nominale sur cinq : il privilégie la prudence.</li>
+              <li>Les FLOP du world model sont exacts ; le reste est estimé à 120&nbsp;FLOP par pas imaginé. L'énergie mesurée est celle des moteurs du bras, pas celle du processeur.</li>
+              <li>Un choc extérieur impose quelques pas en violation au moment même de l'impact : ils sont comptés à part, aucun pilote ne peut les empêcher.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Avantages -->
+      <section class="section section-solid" id="avantages" aria-labelledby="avantages-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Pourquoi AIOBot</p>
+            <h2 id="avantages-title">Une IA physique qui sait quand ne pas agir</h2>
+          </header>
+          <ul class="grid grid-4 benefits">
+            <li class="card reveal">
+              <h3>Sûreté</h3>
+              <p>Les contraintes sont des volumes et des vitesses vérifiés sur chaque trajectoire imaginée, pas une consigne apprise que le réseau pourrait oublier.</p>
+            </li>
+            <li class="card reveal">
+              <h3>Lucidité</h3>
+              <p>Le pilote mesure en continu si le monde suit son modèle et s'arrête quand ce n'est plus le cas, au lieu d'agir avec assurance sur une prédiction fausse.</p>
+            </li>
+            <li class="card reveal">
+              <h3>Sobriété</h3>
+              <p>Le calcul suit la difficulté de l'instant : peu de trajectoires en zone dégagée, toute la puissance près d'une personne ou d'un obstacle.</p>
+            </li>
+            <li class="card reveal">
+              <h3>Traçabilité</h3>
+              <p>Chaque décision est expliquée et scellée : on sait, après un arrêt ou un incident, ce que le robot a vu, imaginé, rejeté et pourquoi.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 7. Cas d'usage -->
+      <section class="section section-solid" id="cas-usage" aria-labelledby="cas-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Cas d'usage</p>
+            <h2 id="cas-title">Là où la machine partage l'espace avec l'humain</h2>
+          </header>
+          <div class="grid grid-3">
+            <article class="card usecase reveal">
+              <h3>Cobots et postes partagés</h3>
+              <p>Prise et dépose à côté d'un opérateur : la vitesse baisse dans sa zone, sa sphère n'est jamais traversée, et chaque ralentissement est expliqué.</p>
+            </article>
+            <article class="card usecase reveal">
+              <h3>Changements de série</h3>
+              <p>Nouvelle pièce, nouvelle masse, outil usé : le filtre χ² voit que le comportement a changé et arrête la cellule au lieu de forcer.</p>
+            </article>
+            <article class="card usecase reveal">
+              <h3>Audit et retour d'expérience</h3>
+              <p>Qualité, HSE, assurance : le registre chaîné reconstitue chaque décision et prouve qu'il n'a pas été modifié après coup.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Intégration -->
+      <section class="section section-solid" id="integration" aria-labelledby="integration-title">
+        <div class="container ledger-grid">
+          <div class="reveal">
+            <p class="eyebrow">Intégration</p>
+            <h2 id="integration-title">Un moteur, une API, un conteneur</h2>
+            <p class="section-lead">
+              Le moteur est écrit en Python et NumPy, sans dépendance lourde. Il s'interroge par une API HTTP
+              (FastAPI) et se lance en une commande avec Docker : image en bytecode seul, système de fichiers en lecture
+              seule, API publiée sur l'interface locale uniquement.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="https://github.com/albanfredon23/aiobot" rel="noopener">Voir le code sur GitHub</a>
+              <a class="btn btn-ghost" href="#contact">Parler de votre cellule</a>
+            </div>
+          </div>
+          <figure class="card ledger-card reveal">
+            <pre class="code" tabindex="0"><code>git clone https://github.com/albanfredon23/aiobot.git
+cd aiobot && docker compose up --build
+
+# une mission simulée, son bilan et son registre
+curl -X POST http://127.0.0.1:8000/api/mission \
+  -H 'content-type: application/json' \
+  -d '{"scenario": "operateur", "seed": 3}'
+
+# vérifier la chaîne d'un registre XAI
+python -m aiobot verify registre.jsonl</code></pre>
+            <figcaption>Démarrage et API, extraits du README du dépôt.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 9. Indicateurs de confiance -->
+      <section class="section section-solid" id="preuves" aria-labelledby="preuves-title">
+        <div class="container">
+          <header class="section-head reveal">
+            <p class="eyebrow">Indicateurs de confiance</p>
+            <h2 id="preuves-title">Vérifiable plutôt que promis</h2>
+          </header>
+          <ul class="grid grid-4 trust">
+            <li class="card reveal"><strong data-count="100">100</strong><span>missions dans le benchmark reproductible</span></li>
+            <li class="card reveal"><strong data-count="29">29</strong><span>tests automatisés, rejoués sur l'image Docker</span></li>
+            <li class="card reveal"><strong data-count="21180">21&nbsp;180</strong><span>FLOP par prédiction du world model, comptés exactement</span></li>
+            <li class="card reveal"><strong data-count="8">8</strong><span>missions réelles du moteur rejouables sur cette page</span></li>
+          </ul>
+          <div class="grid grid-2 testimonials">
+            <figure class="card testimonial reveal">
+              <p class="tag">Emplacement témoignage</p>
+              <blockquote>
+                <p>Cet espace accueillera le retour d'un intégrateur ou d'un industriel ayant évalué AIOBot sur une cellule réelle.</p>
+              </blockquote>
+              <figcaption>Nom, fonction, société (à compléter avec un témoignage réel et autorisé)</figcaption>
+            </figure>
+            <figure class="card testimonial reveal">
+              <p class="tag">Emplacement étude de cas</p>
+              <blockquote>
+                <p>Cet espace accueillera une étude de cas chiffrée : arrêts évités, temps de cycle et calcul, avant et après.</p>
+              </blockquote>
+              <figcaption>Organisation et périmètre (à compléter avec des mesures réelles)</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. FAQ -->
+      <section class="section section-solid" id="faq" aria-labelledby="faq-title">
+        <div class="container container-narrow">
+          <header class="section-head reveal">
+            <p class="eyebrow">Questions fréquentes</p>
+            <h2 id="faq-title">FAQ</h2>
+          </header>
+          <div class="faq">
+            <details class="card">
+              <summary>Qu'est-ce qu'un world model ?</summary>
+              <p>Un simulateur appris. À partir de l'état d'une machine et d'une action, il prédit l'état suivant. Il permet d'imaginer des centaines de gestes en quelques millisecondes, sans risque, puis de n'exécuter que le meilleur.</p>
+            </details>
+            <details class="card">
+              <summary>AIOBot commande-t-il un vrai robot ?</summary>
+              <p>Non. Tout se passe en simulation, sur un bras à deux axes. Passer à un robot réel demande de réapprendre le world model sur ses journaux et de valider les contraintes de sécurité selon les normes applicables, comme ISO 10218 et ISO/TS 15066.</p>
+            </details>
+            <details class="card">
+              <summary>Que se passe-t-il quand le robot porte une charge inconnue ?</summary>
+              <p>Le filtre χ² voit que le monde ne suit plus le world model : AIOBot gèle, réessaie, puis s'arrête et demande une intervention humaine après trois gels, sans aucune violation de contrainte. Rejouez la mission « Charge inconnue » dans la démo.</p>
+            </details>
+            <details class="card">
+              <summary>Combien de calcul le gate économise-t-il ?</summary>
+              <p>Sur le benchmark de 100 missions simulées, le gate divise le calcul par deux (49&nbsp;% de moins par mission, 51&nbsp;% par décision) sans perdre de mission et avec un temps de cycle équivalent.</p>
+            </details>
+            <details class="card">
+              <summary>Pourquoi ne pas laisser un réseau de neurones piloter directement ?</summary>
+              <p>Parce qu'un réseau ne sait pas dire quand il se trompe, et qu'une contrainte apprise peut être violée. AIOBot garde le réseau pour imaginer, mais confie la sécurité à des règles géométriques explicites et à un test statistique.</p>
+            </details>
+            <details class="card">
+              <summary>La démo de cette page envoie-t-elle des données ?</summary>
+              <p>Non. Elle rejoue dans votre navigateur des missions publiées sur ce site ; rien n'est transmis, ni à nous, ni à l'outil de mesure d'audience.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. Contact + lead magnet -->
+      <section class="section section-solid" id="contact" aria-labelledby="contact-title">
+        <div class="container contact-grid">
+          <div class="reveal">
+            <p class="eyebrow">Passons à l'action</p>
+            <h2 id="contact-title">Demandez une démo ou la fiche technique</h2>
+            <p class="section-lead">
+              Une démonstration de 30 minutes sur le simulateur, appliquée à un cas proche du vôtre, ou la fiche
+              technique détaillée : world model, filtre χ², gate, TAP, SCG et registre XAI.
+            </p>
+            <ul class="checklist">
+              <li>Traduction de vos zones et règles de sécurité en contraintes SCG</li>
+              <li>Données nécessaires pour apprendre le world model de votre machine</li>
+              <li>Format d'audit attendu par votre qualité ou votre HSE</li>
+            </ul>
+          </div>
+          <form class="card contact-form" id="contact-form" novalidate>
+            <div class="field">
+              <label for="cf-name">Nom et prénom <span aria-hidden="true">*</span></label>
+              <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+            </div>
+            <div class="field">
+              <label for="cf-email">E-mail professionnel <span aria-hidden="true">*</span></label>
+              <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="254" />
+            </div>
+            <div class="field">
+              <label for="cf-company">Société</label>
+              <input id="cf-company" name="company" type="text" autocomplete="organization" maxlength="160" />
+            </div>
+            <div class="field">
+              <label for="cf-message">Votre besoin</label>
+              <textarea id="cf-message" name="message" rows="4" maxlength="4000"></textarea>
+            </div>
+            <div class="field-check">
+              <input id="cf-lead" name="lead_magnet" type="checkbox" />
+              <label for="cf-lead">Je souhaite recevoir la fiche technique AIOBot.</label>
+            </div>
+            <div class="field-check">
+              <input id="cf-consent" name="consent" type="checkbox" required aria-describedby="cf-notice" />
+              <label for="cf-consent">
+                J'accepte que mes données soient utilisées pour répondre à ma demande. <span aria-hidden="true">*</span>
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">Envoyer ma demande</button>
+            <p id="cf-notice" class="form-notice">
+              Les données saisies sont utilisées uniquement par l'éditeur d'AIOBot pour répondre à votre demande et ne
+              sont jamais cédées. Elles sont conservées 3 ans au plus après le dernier contact. Vous pouvez y accéder,
+              les rectifier, les effacer ou retirer votre consentement à tout moment : voir notre
+              <a href="confidentialite.html">politique de confidentialité</a>. Les champs marqués * sont obligatoires.
+            </p>
+            <p id="cf-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="footer-brand"><strong>AIOBot</strong> · Pilote industriel fondé sur un world model appris</p>
+        <nav aria-label="Informations légales">
+          <ul>
+            <li><a href="mentions-legales.html">Mentions légales</a></li>
+            <li><a href="confidentialite.html">Politique de confidentialité</a></li>
+            <li><a href="cookies.html">Gestion des cookies</a></li>
+            <li><button type="button" class="link-button" data-open-consent>Gérer mes cookies</button></li>
+            <li><a href="https://github.com/albanfredon23/aiobot" rel="noopener">Code source sur GitHub</a></li>
+          </ul>
+        </nav>
+        <p class="disclaimer">
+          Résultats mesurés en simulation (bras 2 axes) ; ils ne préjugent pas des performances sur un robot réel.
+          AIOBot n'est pas un automate de sécurité certifié et ne commande aucune machine réelle.
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>

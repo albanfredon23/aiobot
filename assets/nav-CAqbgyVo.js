@@ -1,0 +1,29 @@
+(function(){let e=document.createElement(`link`).relList;if(e&&e.supports&&e.supports(`modulepreload`))return;for(let e of document.querySelectorAll(`link[rel="modulepreload"]`))n(e);new MutationObserver(e=>{for(let t of e)if(t.type===`childList`)for(let e of t.addedNodes)e.tagName===`LINK`&&e.rel===`modulepreload`&&n(e)}).observe(document,{childList:!0,subtree:!0});function t(e){let t={};return e.integrity&&(t.integrity=e.integrity),e.referrerPolicy&&(t.referrerPolicy=e.referrerPolicy),t.credentials=e.crossOrigin===`use-credentials`?`include`:e.crossOrigin===`anonymous`?`omit`:`same-origin`,t}function n(e){if(e.ep)return;e.ep=!0;let n=t(e);fetch(e.href,n)}})();var e=`aiobot-consent`,t=1,n=157248e5,r=[{id:`analytics`,label:`Mesure d'audience`,description:`Statistiques de fréquentation anonymisées (outil respectueux de la vie privée, sans publicité ni revente). Désactivée par défaut.`}],i=new Set;function a(){try{let r=window.localStorage.getItem(e);if(!r)return null;let i=JSON.parse(r);return i.v!==t||Date.now()-i.date>n?null:i}catch{return null}}function o(n){let r={v:t,date:Date.now(),choices:n};try{window.localStorage.setItem(e,JSON.stringify(r))}catch{}return r}var s=a();function c(){return s?{...s.choices}:null}function l(e){return!!(s&&s.choices[e])}function u(e){return i.add(e),()=>i.delete(e)}function d(e){s=o(e),f(),i.forEach(e=>e(c()))}function f(){document.querySelectorAll(`script[type="text/plain"][data-consent]`).forEach(e=>{if(!l(e.dataset.consent))return;let t=document.createElement(`script`);e.dataset.src?t.src=e.dataset.src:t.textContent=e.textContent,t.defer=!0,e.replaceWith(t)})}var p=e=>Object.fromEntries(r.map(t=>[t.id,e])),m,h;function g(){let e=document.createElement(`section`);e.className=`consent`,e.setAttribute(`role`,`dialog`),e.setAttribute(`aria-modal`,`false`),e.setAttribute(`aria-labelledby`,`consent-title`),e.setAttribute(`aria-describedby`,`consent-desc`),e.innerHTML=`
+    <div class="consent-inner">
+      <h2 id="consent-title" class="consent-title">Votre vie privée</h2>
+      <p id="consent-desc">
+        Ce site n'utilise aucun cookie publicitaire. Avec votre accord, nous mesurons l'audience de façon anonymisée
+        pour améliorer le site. Vous pouvez accepter, refuser ou personnaliser, et changer d'avis à tout moment via
+        « Gérer mes cookies ». <a href="cookies.html">En savoir plus</a>
+      </p>
+      <form class="consent-prefs" hidden>
+        <fieldset>
+          <legend>Catégories de traceurs</legend>
+          <div class="consent-row">
+            <input type="checkbox" id="consent-necessary" checked disabled />
+            <label for="consent-necessary"><strong>Strictement nécessaires</strong> : mémorisation de votre choix. Toujours actifs.</label>
+          </div>
+          ${r.map(e=>`
+          <div class="consent-row">
+            <input type="checkbox" id="consent-${e.id}" name="${e.id}" />
+            <label for="consent-${e.id}"><strong>${e.label}</strong> : ${e.description}</label>
+          </div>`).join(``)}
+        </fieldset>
+        <button type="submit" class="btn btn-ghost btn-small">Enregistrer mes choix</button>
+      </form>
+      <div class="consent-actions">
+        <button type="button" class="btn btn-consent" data-action="refuse">Tout refuser</button>
+        <button type="button" class="btn btn-consent" data-action="accept">Tout accepter</button>
+        <button type="button" class="link-button" data-action="customize" aria-expanded="false">Personnaliser</button>
+      </div>
+    </div>`;let t=e.querySelector(`.consent-prefs`),n=e.querySelector(`[data-action="customize"]`);return e.addEventListener(`click`,e=>{let r=e.target.closest(`[data-action]`)?.dataset.action;if(r===`accept`&&v(p(!0)),r===`refuse`&&v(p(!1)),r===`customize`){let e=t.hidden;t.hidden=!e,n.setAttribute(`aria-expanded`,String(e)),e&&t.querySelector(`input:not([disabled])`)?.focus()}}),t.addEventListener(`submit`,e=>{e.preventDefault(),v(Object.fromEntries(r.map(e=>[e.id,t.elements[e.id].checked])))}),e.addEventListener(`keydown`,e=>{e.key===`Escape`&&s&&v(s.choices)}),e}function _({showPreferences:e=!1}={}){m||(m=g(),document.body.prepend(m));let t=m.querySelector(`.consent-prefs`);r.forEach(e=>{t.elements[e.id].checked=l(e.id)}),t.hidden=!e,m.querySelector(`[data-action="customize"]`).setAttribute(`aria-expanded`,String(e)),m.hidden=!1,h=document.activeElement,requestAnimationFrame(()=>m.classList.add(`is-visible`))}function v(e){d(e),m.classList.remove(`is-visible`),m.hidden=!0,h&&h!==document.body&&document.contains(h)&&h.focus()}function y(){f(),s||_(),document.addEventListener(`click`,e=>{e.target.closest(`[data-open-consent]`)&&(e.preventDefault(),_({showPreferences:!0}))})}var b=!1;function x(e){return document.querySelector(`meta[name="${e}"]`)?.content?.trim()||``}function S(){let e=x(`aiobot:analytics-src`);if(b||!e||!l(`analytics`))return;let t=document.createElement(`script`);t.defer=!0,t.src=e,t.dataset.domain=x(`aiobot:analytics-domain`),document.head.append(t),b=!0}function C(){S(),u(()=>{if(!l(`analytics`)&&b){window.location.reload();return}S()})}function w(e,t){b&&typeof window.plausible==`function`&&window.plausible(e,t?{props:t}:void 0)}function T(){let e=document.querySelector(`.nav-toggle`),t=document.getElementById(`site-nav`);if(!e||!t)return;let n=e.querySelector(`.visually-hidden`),r=r=>{e.setAttribute(`aria-expanded`,String(r)),t.classList.toggle(`is-open`,r),n&&(n.textContent=r?`Fermer le menu`:`Ouvrir le menu`)};e.addEventListener(`click`,()=>r(e.getAttribute(`aria-expanded`)!==`true`)),t.addEventListener(`click`,e=>{e.target.closest(`a`)&&r(!1)}),document.addEventListener(`keydown`,t=>{t.key===`Escape`&&e.getAttribute(`aria-expanded`)===`true`&&(r(!1),e.focus())})}export{y as i,C as n,w as r,T as t};

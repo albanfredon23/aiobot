@@ -1,0 +1,27 @@
+{
+ "seed": 7,
+ "transitions": 80000,
+ "members": 3,
+ "hidden": 96,
+ "parameters_per_member": 10564,
+ "flops_per_prediction": 21180,
+ "training": {
+  "epochs": 40,
+  "train_mse_normalised": 0.001478,
+  "val_mse_normalised": 0.001444,
+  "val_r2": [
+   0.9998,
+   0.9992,
+   0.9986,
+   0.9966
+  ],
+  "n_train": 68000,
+  "n_val": 12000
+ },
+ "chi2_calibration": {
+  "steps": 564,
+  "threshold": 14.894,
+  "threshold_freeze": 44.531
+ },
+ "duration_s": 43.6
+}

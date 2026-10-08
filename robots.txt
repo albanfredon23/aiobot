@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://albanfredon23.github.io/aiobot/sitemap.xml
