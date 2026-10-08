@@ -31,17 +31,25 @@ jobs:
       - name: Build et démarrage
         run: |
           docker compose up -d --build --wait
-          curl -fsS http://127.0.0.1:8000/api/health
-          curl -fsS -X POST http://127.0.0.1:8000/api/mission -H 'Content-Type: application/json' -d '{"frames": false}' | grep -q '"verified":true'
-          curl -fsS http://127.0.0.1:8000/api/model > /dev/null
+          # Le site et l'API passent par le seul service exposé
+          curl -fsS http://127.0.0.1:8080/ | grep -q 'AIOBot'
+          curl -fsS http://127.0.0.1:8080/data/missions/nominal-aiobot.json > /dev/null
+          curl -fsS http://127.0.0.1:8080/api/health
+          curl -fsS -X POST http://127.0.0.1:8080/api/mission -H 'Content-Type: application/json' -d '{"frames": false}' | grep -q '"verified":true'
+          curl -fsS http://127.0.0.1:8080/api/model > /dev/null
       - name: Cloisonnement
         run: |
           # Aucune source Python dans l'image, seulement du bytecode
           test "$(docker compose exec -T aiobot-engine sh -c 'find /app -name "*.py" | wc -l')" = "0"
-          # API publiée uniquement sur l'interface locale
-          docker compose port aiobot-engine 8000 | grep -q '^127.0.0.1:'
-          # Système de fichiers en lecture seule
+          # Moteur : aucun port publié, aucune sortie vers Internet
+          test "$(docker inspect -f '{{json .HostConfig.PortBindings}}' "$(docker compose ps -q aiobot-engine)")" = "{}"
+          if docker compose exec -T aiobot-engine python -c "import urllib.request; urllib.request.urlopen('https://example.com', timeout=5)"; then exit 1; fi
+          # Site : CSP stricte, documentation interactive de l'API non publiée
+          curl -fsSI http://127.0.0.1:8080/ | grep -qi "content-security-policy: default-src 'self'"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/api/docs)" = "404"
+          # Systèmes de fichiers en lecture seule
           if docker compose exec -T aiobot-engine touch /app/essai; then exit 1; fi
+          if docker compose exec -T aiobot-web touch /usr/share/nginx/html/essai; then exit 1; fi
       - name: Arrêt
         if: always()
         run: docker compose down -v

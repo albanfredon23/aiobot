@@ -1,0 +1,16 @@
+# Contexte de build du site : seules les sources du front partent dans l'image.
+node_modules
+dist
+Dockerfile
+.dockerignore
+.git
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.log
+.DS_Store
+.vscode
+.idea

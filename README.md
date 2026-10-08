@@ -1,5 +1,7 @@
 # AIOBot · Pilote industriel fondé sur un world model appris
 
+**Site : <https://albanfredon23.github.io/aiobot/>** (scène 3D et rejeu de vraies missions du moteur)
+
 > La productivité est une conséquence. La trajectoire admissible sous contraintes physiques et de sécurité est l'objectif.
 
 AIOBot transpose l'architecture d'AIOTrade (filtre χ², TAP, SCG, registre XAI) de la finance à l'automatisation
@@ -7,8 +9,8 @@ industrielle. Au lieu d'imaginer des trajectoires de prix, il imagine des trajec
 **world model** appris, élimine celles qui violent une contrainte de sécurité, et n'agit que si le plan retenu
 reste sûr face à l'incertitude du modèle. Chaque décision est scellée dans un registre d'audit chaîné.
 
-Ce dépôt contient le moteur (Python, NumPy pur), son API (FastAPI), les tests et la conteneurisation. Tout se
-passe en **simulation** : aucun robot réel n'est commandé.
+Ce dépôt contient le moteur (Python, NumPy pur), son API (FastAPI), les tests, la conteneurisation et le site.
+Tout se passe en **simulation** : aucun robot réel n'est commandé.
 
 ## Qu'est-ce qu'un world model ?
 
@@ -105,8 +107,8 @@ cd aiobot
 docker compose up --build
 ```
 
-Puis ouvrir <http://127.0.0.1:8000/api/docs>. L'API n'est publiée que sur l'interface locale ; le futur site
-sera le seul service exposé publiquement.
+Puis ouvrir <http://127.0.0.1:8080> : le site, avec une démo qui joue des missions en direct sur le moteur.
+L'API est servie par le même service sous `/api/` ; le moteur lui-même n'a aucun port publié.
 
 Sans Docker :
 
@@ -118,6 +120,8 @@ python -m aiobot mission --scenario charge    # une mission et son bilan
 python -m aiobot mission --ledger registre.jsonl && python -m aiobot verify registre.jsonl
 python -m aiobot benchmark                    # 100 missions, environ 1 min sur 4 cœurs
 python -m aiobot train                        # réapprend le world model (environ 45 s, déterministe)
+python -m aiobot export-demo                  # missions rejouées par le site (web/public/data)
+uvicorn aiobot.api:app                        # API et sa documentation interactive sur http://127.0.0.1:8000/api/docs
 ```
 
 ## API
@@ -131,13 +135,23 @@ python -m aiobot train                        # réapprend le world model (envir
 | GET | `/api/benchmark` | Rapport du benchmark |
 | POST | `/api/ledger/verify` | Vérifie la chaîne d'un registre XAI (JSON Lines) |
 
+## Site
+
+Le dossier `web/` (Vite + Three.js) contient le site publié sur <https://albanfredon23.github.io/aiobot/> par
+`.github/workflows/pages.yml`. La scène 3D et la démo rejouent des missions exportées par le moteur
+(`python -m aiobot export-demo`) : rien n'y est inventé. Consentement CNIL, pages légales, CSP stricte et repli 2D
+sans WebGL ; détails dans `web/README.md`.
+
 ## Conteneur
 
 | Directive | Mise en œuvre |
 |---|---|
 | Bytecode seul | `engine/Dockerfile` multi-étapes : `python -m compileall -b .` puis suppression des `.py` ; les tests de l'étape `test` tournent sur ce bytecode |
-| Durcissement | Système de fichiers en lecture seule, `cap_drop: ALL`, `no-new-privileges`, utilisateur non root |
-| Exposition | API publiée sur `127.0.0.1` uniquement |
+| Durcissement | Systèmes de fichiers en lecture seule, `cap_drop: ALL`, `no-new-privileges`, moteur en utilisateur non root |
+| Deux services | `aiobot-engine` (moteur) et `aiobot-web` (nginx), jamais un monolithe |
+| Exposition | Seul `aiobot-web` est publié (port 8080) ; il sert le site et relaie `/api/` ; la documentation interactive de l'API n'est pas publiée |
+| Cloisonnement | Moteur sans port publié, sur un réseau interne sans accès à Internet |
+| En-têtes | CSP stricte (aucun script, style ou connexion hors de l'origine), `X-Frame-Options`, `nosniff`, `Permissions-Policy` |
 | Secrets | Aucun n'est nécessaire ; `.gitignore` et `.dockerignore` excluent `.env`, clés, certificats, bases locales et registres |
 
 Limite à connaître : le bytecode Python se décompile avec des outils publics. Il dissuade la lecture

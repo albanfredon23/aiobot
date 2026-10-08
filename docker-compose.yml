@@ -1,10 +1,11 @@
-# AIOBot : moteur seul pour l'instant (le site viendra plus tard comme second service)
-#   docker compose up --build        puis http://127.0.0.1:8000/api/docs
+# AIOBot : deux services séparés, jamais un monolithe.
+#   docker compose up --build        puis http://127.0.0.1:8080
 #
 #   aiobot-engine  world model, pilote et API ; image en bytecode seul, utilisateur
-#                  non root, système de fichiers en lecture seule. L'API n'est publiée
-#                  que sur 127.0.0.1 (jamais sur Internet) ; le futur service web sera
-#                  le seul exposé publiquement, comme pour AIOTrade.
+#                  non root, système de fichiers en lecture seule. Aucun port publié :
+#                  il n'est joignable que par le réseau interne.
+#   aiobot-web     site (nginx) ; seul service exposé. Sert le site et relaie /api/
+#                  vers le moteur, ce qui active la démo « moteur en direct ».
 name: aiobot
 
 services:
@@ -14,8 +15,6 @@ services:
       target: runtime
     restart: unless-stopped
     networks: [internal-net]
-    ports:
-      - "127.0.0.1:${AIOBOT_API_PORT:-8000}:8000"
     environment:
       AIOBOT_METRICS_DIR: /data/metrics
     volumes:
@@ -27,8 +26,30 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  aiobot-web:
+    build: ./web
+    restart: unless-stopped
+    depends_on:
+      aiobot-engine:
+        condition: service_healthy
+    networks: [internal-net, public-net]
+    ports:
+      - "${AIOBOT_HTTP_PORT:-8080}:8080"
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]  # nginx : processus maître root, workers non privilégiés
+    security_opt:
+      - no-new-privileges:true
+
 networks:
-  internal-net: {}
+  # Réseau interne : aucune sortie vers Internet pour le moteur.
+  internal-net:
+    internal: true
+  public-net: {}
 
 volumes:
   metrics:
