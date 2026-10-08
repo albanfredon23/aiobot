@@ -3,6 +3,7 @@
     python -m aiobot train                    apprend le world model et étalonne le filtre χ²
     python -m aiobot mission --scenario charge  joue une mission et affiche son bilan
     python -m aiobot benchmark                benchmark à 4 bras sur 5 scénarios
+    python -m aiobot export-demo              missions rejouées par le site (web/public/data)
     python -m aiobot verify registre.jsonl    vérifie la chaîne d'un registre XAI
 """
 from __future__ import annotations
@@ -44,6 +45,10 @@ def main(argv: list[str] | None = None) -> int:
     p_bench.add_argument("--model", default=str(MODEL_PATH))
     p_bench.add_argument("--out", default=str(REPORT_PATH))
 
+    p_demo = sub.add_parser("export-demo", help="exporter les missions rejouées par le site")
+    p_demo.add_argument("--out", default="../web/public/data")
+    p_demo.add_argument("--model", default=str(MODEL_PATH))
+
     p_verify = sub.add_parser("verify", help="vérifier un registre XAI")
     p_verify.add_argument("path")
 
@@ -65,6 +70,12 @@ def main(argv: list[str] | None = None) -> int:
         report = run_benchmark(args.model, BenchmarkConfig(seeds=args.seeds, workers=args.workers))
         save_report(report, args.out)
         print(json.dumps(report["headline"], ensure_ascii=False, indent=1))
+        return 0
+    if args.command == "export-demo":
+        from .demo_export import export_demo
+
+        for path in export_demo(WorldModel.load(args.model), args.out):
+            print(f"{path} ({path.stat().st_size // 1024} ko)")
         return 0
     if args.command == "verify":
         result = verify_chain(XAILedger.read_jsonl(args.path))
