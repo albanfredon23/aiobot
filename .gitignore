@@ -1,0 +1,47 @@
+# --- Secrets : jamais versionnés (seul .env.example l'est, avec des valeurs vides) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+secrets/
+certs/*
+!certs/README.md
+credentials*.json
+
+# --- Données locales et registres d'exécution ---
+*.sqlite
+*.sqlite3
+*.db
+engine/ledger/
+ledger/
+*.jsonl
+metrics/
+*.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+.venv/
+venv/
+
+# --- Front ---
+node_modules/
+web/dist/
+
+# --- Éditeurs et système ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

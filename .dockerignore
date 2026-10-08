@@ -1,0 +1,19 @@
+# Les contextes de build sont engine/ et web/ (chacun a son .dockerignore).
+# Ce fichier protège un éventuel build lancé depuis la racine.
+.git
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+certs/
+secrets/
+*.sqlite
+*.sqlite3
+*.db
+*.jsonl
+**/node_modules
+**/dist
+**/__pycache__
+**/*.pyc
